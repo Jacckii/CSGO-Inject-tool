@@ -37,16 +37,6 @@
             this.listBox1.BackColor = System.Drawing.SystemColors.InfoText;
             this.listBox1.ForeColor = System.Drawing.Color.Lime;
             this.listBox1.FormattingEnabled = true;
-            this.listBox1.Items.AddRange(new object[] {
-            "TEST",
-            "TEST",
-            "TEST",
-            "TEST",
-            "TEST",
-            "TEST",
-            "TEST",
-            "TEST",
-            "TEST"});
             this.listBox1.Location = new System.Drawing.Point(-2, -2);
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(786, 446);
@@ -63,12 +53,13 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "debug_console";
             this.Text = "debug logs";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.debug_console_FormClosing);
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.ListBox listBox1;
+        public System.Windows.Forms.ListBox listBox1;
     }
 }

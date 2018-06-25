@@ -31,6 +31,7 @@ namespace CSGO_TOOL_FOR_DEBUG
 {
     public partial class Form1 : Form
     {
+        debug_console debug = new debug_console();
         bool injected = false;
         bool readytoinject = false;
         System.Media.SoundPlayer player = new System.Media.SoundPlayer(CSGO_TOOL_FOR_DEBUG.Properties.Resources.done);
@@ -46,8 +47,8 @@ namespace CSGO_TOOL_FOR_DEBUG
             comboBox2.Items.Add("csgo");
             comboBox2.SelectedIndex = 0;
             comboBox1.Enabled = false; //Only LoadLibrary atm
-            comboBox1.DropDownStyle = ComboBoxStyle.DropDownList; //prevent typing into process combo list
-
+            comboBox1.DropDownStyle = ComboBoxStyle.DropDownList; //prevent typing into process combo list   
+            debug.listBox1.Items.Add("Init.");
         }
 
         private void updater(object sender, EventArgs e)
@@ -57,6 +58,7 @@ namespace CSGO_TOOL_FOR_DEBUG
 
         private void listofprocess()
         {
+            debug.listBox1.Items.Add("Checking all running processes.");
             comboBox2.Items.Clear();
             Process[] MyProcess = Process.GetProcesses();
             for (int i = 0; i < MyProcess.Length; i++)
@@ -98,8 +100,9 @@ namespace CSGO_TOOL_FOR_DEBUG
                     }
                 }
             }
-            catch
+            catch(Exception ex)
             {
+                debug.listBox1.Items.Add("Error while getting status: " + ex.Message.ToString());
                 //don't do anything if it crash
             }
             if (injected)
@@ -141,10 +144,12 @@ namespace CSGO_TOOL_FOR_DEBUG
                     Process[] procs = Process.GetProcessesByName("csgo");
                     foreach (Process p in procs) { p.Kill(); }
                     player.Play();
+                    debug.listBox1.Items.Add("Process csgo.exe killed.");
                 }
-                catch
+                catch(Exception ex)
                 {
                     MessageBox.Show("Error with killing the process!");
+                    debug.listBox1.Items.Add("Error with killing process: " + ex.Message.ToString());
                 }
             }
         }
@@ -159,10 +164,14 @@ namespace CSGO_TOOL_FOR_DEBUG
 
                 await Task.Delay(15000); //CSGO crash if the game doesn't loded completly and we inject so we're waiting 15secs and then we go for inject
                 readytoinject = true; //tell injector that we can inject!
+                debug.listBox1.Items.Add("Process csgo.exe started.");
 
             }
             else
+            {
                 MessageBox.Show("The game is already running!");
+                debug.listBox1.Items.Add("Error while starting the game:The game is already running!");
+            }
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
@@ -195,16 +204,22 @@ namespace CSGO_TOOL_FOR_DEBUG
 
         private async void Inject()
         {
+            debug.listBox1.Items.Add("Starting Inject!");
             if (textBox1.TextLength < 1)
+            {
                 MessageBox.Show("You need to select DLL before injecting!");
+                debug.listBox1.Items.Add("Error while injection: Dll not selected!");
+            }
             else
             {
+                debug.listBox1.Items.Add("Dll file selected");
                 if (injected)
                 {
                     if (checkBox2.Checked == true)
                         return;
                     else
                         MessageBox.Show("You already injected!");
+                    debug.listBox1.Items.Add("Error while injection: You can inject only once per sesion!");
                 }
                 else
                 {
@@ -225,12 +240,14 @@ namespace CSGO_TOOL_FOR_DEBUG
                                 if (hProcess == null)
                                 {
                                     MessageBox.Show("Process " + strProcessName + " isn't running!");
+                                    debug.listBox1.Items.Add("Error while injection: Process " + strProcessName + " isn't running!");
                                 }
                                 else
                                 {
                                     InjectLoadLibrary(hProcess, strDLLName);
                                     player.Play();
                                     injected = true;
+                                    debug.listBox1.Items.Add("Injected!");
                                     if (checkBox3.Checked == true)
                                     {
                                         await Task.Delay(2000);
@@ -238,6 +255,10 @@ namespace CSGO_TOOL_FOR_DEBUG
                                         System.Environment.Exit(1);
                                     }
                                 }
+                            }
+                            else
+                            {
+                                debug.listBox1.Items.Add("Error while injection: Process id is invalid!");
                             }
                         }
                         else if (comboBox1.SelectedIndex == 1) // Manual Mapping
@@ -247,6 +268,7 @@ namespace CSGO_TOOL_FOR_DEBUG
                     }
                     else
                     {
+                        debug.listBox1.Items.Add("Delay 1 Sec.");
                         await Task.Delay(1000);
                         Inject();
                         return;
@@ -349,7 +371,6 @@ namespace CSGO_TOOL_FOR_DEBUG
 
         private void debugConsoleToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            debug_console debug = new debug_console();
             debug.Show();
         }
 

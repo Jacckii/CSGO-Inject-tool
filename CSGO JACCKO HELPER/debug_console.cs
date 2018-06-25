@@ -31,5 +31,14 @@ namespace CSGO_TOOL_FOR_DEBUG
         {
             InitializeComponent();
         }
+
+        private void debug_console_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true;
+                Hide();
+            }
+        }
     }
 }
