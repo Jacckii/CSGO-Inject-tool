@@ -49,6 +49,7 @@ namespace CSGO_TOOL_FOR_DEBUG
             comboBox1.Enabled = false; //Only LoadLibrary atm
             comboBox1.DropDownStyle = ComboBoxStyle.DropDownList; //prevent typing into process combo list   
             debug.listBox1.Items.Add("Init.");
+            textBox4.Hide();
         }
 
         private void updater(object sender, EventArgs e)
@@ -90,7 +91,7 @@ namespace CSGO_TOOL_FOR_DEBUG
                 }
                 else
                 {
-                    if (checkBox2.Checked == true && textBox1.TextLength > 1)
+                    if (checkBox2.Checked && textBox1.TextLength > 1)
                     {
                         if (selected_process != "csgo")
                             readytoinject = true;
@@ -176,7 +177,7 @@ namespace CSGO_TOOL_FOR_DEBUG
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
-            if (checkBox1.Checked == true)
+            if (checkBox1.Checked)
             {
                 comboBox2.Enabled = false;
                 comboBox2.Items.Clear();
@@ -215,7 +216,7 @@ namespace CSGO_TOOL_FOR_DEBUG
                 debug.listBox1.Items.Add("Dll file selected");
                 if (injected)
                 {
-                    if (checkBox2.Checked == true)
+                    if (checkBox2.Checked)
                         return;
                     else
                         MessageBox.Show("You already injected!");
@@ -223,7 +224,7 @@ namespace CSGO_TOOL_FOR_DEBUG
                 }
                 else
                 {
-                    if (checkBox2.Checked == true && comboBox2.SelectedItem.ToString() == "csgo" && readytoinject || checkBox2.Checked == false || comboBox2.SelectedItem.ToString() != "csgo")
+                    if (checkBox2.Checked && comboBox2.SelectedItem.ToString() == "csgo" && readytoinject || !checkBox2.Checked || comboBox2.SelectedItem.ToString() != "csgo" || checkBox4.Checked)
                     {
                         if (comboBox1.SelectedIndex == 0) // LoadLibrary
                         {
@@ -232,8 +233,11 @@ namespace CSGO_TOOL_FOR_DEBUG
                             String strDLLName = path;
                             string selected_process = comboBox2.SelectedItem.ToString();
                             String strProcessName = selected_process;
-
-                            Int32 ProcID = GetProcessId(strProcessName);
+                            Int32 ProcID = 0;
+                            if (!checkBox4.Checked)
+                                ProcID = GetProcessId(strProcessName);
+                            else
+                                ProcID = Int32.Parse(textBox4.Text);
                             if (ProcID >= 0)
                             {
                                 IntPtr hProcess = (IntPtr)OpenProcess(0x1F0FFF, 1, ProcID);
@@ -248,7 +252,7 @@ namespace CSGO_TOOL_FOR_DEBUG
                                     player.Play();
                                     injected = true;
                                     debug.listBox1.Items.Add("Injected!");
-                                    if (checkBox3.Checked == true)
+                                    if (checkBox3.Checked)
                                     {
                                         await Task.Delay(2000);
                                         System.Windows.Forms.Application.Exit();
@@ -288,9 +292,42 @@ namespace CSGO_TOOL_FOR_DEBUG
             }
         }
 
+        private void checkBox4_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox4.Checked)
+            {
+                label6.Text = "Process PID:";
+                comboBox2.Hide();
+                textBox4.Show();
+            }
+            else
+            {
+                comboBox2.Show();
+                textBox4.Hide();
+                label6.Text = "Select process:";
+            }
+ 
+        }
+
+        private void textBox4_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && (e.KeyChar != '.'))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void textBox4_TextChanged(object sender, EventArgs e)
+        {
+            if (System.Text.RegularExpressions.Regex.IsMatch(textBox1.Text, "  ^ [0-9]"))
+            {
+                textBox1.Text = "";
+            }
+        }
+
         private void checkBox2_CheckedChanged(object sender, EventArgs e)
         {
-            if (checkBox2.Checked == true)
+            if (checkBox2.Checked)
             {
                 button4.Enabled = false;
             }
